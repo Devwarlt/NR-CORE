@@ -513,7 +513,25 @@ namespace wServer.realm.entities
                 ObjectId = Id
             });
         }
-        
+
+        public Player SpyTarget { get; set; }
+        public Player Spy { get; set; }
+
+        public void ResetSpy()
+        {
+            if (Spy != null)
+            {
+                Spy.ColoredText($"{Name} has disconnected. You are no longer spying on {Name}.", textColor: 0xD74894);
+                Spy.SpyTarget = null;
+                Spy = null;
+            }
+            if (SpyTarget != null)
+            {
+                SpyTarget.Spy = null;
+                SpyTarget = null;
+            }
+        }
+
         public override void Init(World owner)
         {
             var x = 0;
@@ -1137,6 +1155,12 @@ namespace wServer.realm.entities
                 SpectateTarget.FocusLost -= ResetFocus;
                 SpectateTarget.Controller = null;
             }
+
+            if (Spy != null || SpyTarget != null)
+            {
+                ResetSpy();
+            }
+
             _clientEntities.Dispose();
         }
 

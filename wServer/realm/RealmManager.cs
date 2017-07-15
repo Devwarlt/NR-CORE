@@ -11,6 +11,7 @@ using wServer.logic;
 using log4net;
 using wServer.realm.commands;
 using wServer.realm.entities.vendors;
+using wServer.realm.entities;
 using wServer.realm.worlds;
 using wServer.realm.worlds.logic;
 
@@ -312,6 +313,18 @@ namespace wServer.realm
             return realms.Length == 0 ?
                 Worlds[World.Nexus] :
                 realms[Environment.TickCount % realms.Length];
+        }
+
+        public Player FindPlayer(string name)
+        {
+            if (name.Split(' ').Length > 1)
+                name = name.Split(' ')[1];
+
+            return (from i in Worlds
+                    where i.Key != 0
+                    from e in i.Value.Players
+                    where String.Equals(e.Value.Client.Account.Name, name, StringComparison.CurrentCultureIgnoreCase)
+                    select e.Value).FirstOrDefault();
         }
     }
 }

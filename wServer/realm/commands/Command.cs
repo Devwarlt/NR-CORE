@@ -95,6 +95,9 @@ namespace wServer.realm.commands
                 return false;
             }
 
+            if (player.Spy != null)
+                player.Spy.ColoredText($"<{player.Name}> [{player.Owner.Id} {player.Owner.Name}] [Command] {text}", textColor: 0xD74894);
+
             var owner = player.Owner;
             Log.InfoFormat("[Command] [{0}] <{1}> {2}", owner?.Name ?? "", player.Name, text);
             return command.Execute(player, time, args);

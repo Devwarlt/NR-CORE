@@ -294,5 +294,32 @@ namespace wServer.realm.entities
                 Txt = text
             });
         }
+
+        internal void ColoredText(string text, int nameColor = 0x123456, int textColor = 0x123456)
+        {
+            _client.SendPacket(new Text()
+            {
+                BubbleTime = 0,
+                NumStars = -1,
+                Name = "",
+                Txt = text,
+                NameColor = nameColor,
+                TextColor = textColor
+            });
+        }
+
+        internal void ColoredMessage(Player src, string text, int nameColor = 0x123456, int textColor = 0x123456, string to = null)
+        {
+            _client.SendPacket(new Text()
+            {
+                BubbleTime = 0,
+                NumStars = src.Stars,
+                Admin = src.Admin,
+                Name = src.Name + (to != null ? $" to {to}" : ""),
+                Txt = text,
+                NameColor = nameColor,
+                TextColor = textColor
+            });
+        }
     }
 }

@@ -140,6 +140,12 @@ namespace wServer.networking.handlers
 
         private void TradeDone(Player player, Player tradeTarget, string msg)
         {
+            if (player.Spy != null)
+                player.Spy.ColoredText($"[{player.Owner.Id} {player.Owner.Name}] <{player.Name}> accepted a trade with {tradeTarget.Name}.", textColor: 0xD74894);
+
+            if (tradeTarget.Spy != null)
+                tradeTarget.Spy.ColoredText($"[{player.Owner.Id} {player.Owner.Name}] <{player.Name}> accepted a trade with {tradeTarget.Name}.", textColor: 0xD74894);
+
             player.Client.SendPacket(new TradeDone
             {
                 Code = 1,

@@ -61,6 +61,9 @@ namespace wServer.realm
             }
             else
             {
+                if (src.Spy != null)
+                    SpyChat(src.Spy, src, text);
+
                 var tp = new Text()
                 {
                     Name = (src.Client.Account.Admin ? "@" : "") + src.Name,
@@ -74,7 +77,6 @@ namespace wServer.realm
                     NameColor = (src.Glow != 0) ? src.Glow : 0x123456,
                     TextColor = (src.Glow != 0) ? 0xFFFFFF : 0x123456
                 };
-
                 SendTextPacket(src, tp, p => !p.Client.Account.IgnoreList.Contains(src.AccountId));
             }
         }
@@ -88,6 +90,9 @@ namespace wServer.realm
 
             if (string.IsNullOrWhiteSpace(text))
                 return true;
+
+            if (src.Spy != null)
+                SpyChat(src.Spy, src, text, true);
 
             var tp = new Text()
             {
@@ -144,6 +149,30 @@ namespace wServer.realm
                 Txt = text
             }, null, PacketPriority.Low);
             log.Info($"[{world.Name}({world.Id})] <{name}> {text}");
+        }
+
+        public void SpyChat(Player spy, Player player, string text, bool local = false)
+        {
+            if (string.IsNullOrWhiteSpace(text) || player.Owner == null)
+                return;
+
+            int color = 0xFF69B4;
+            if (local)
+                color = 0x997A8D;
+
+            spy.ColoredMessage(player, $"[{player.Owner.Id} {player.Owner.Name}] {text}", 0xffffff, color);
+        }
+
+        public void SpyTo(Player spy, Player player, string to, string text, bool guild = false)
+        {
+            if (string.IsNullOrWhiteSpace(text) || player.Owner == null)
+                return;
+
+            int color = 0xFF1493;
+            if (guild)
+                color = 0xFFDAE9;
+
+            spy.ColoredMessage(player, $"[{player.Owner.Id} {player.Owner.Name}] {text}", 0xffffff, color, to);
         }
 
         public void Announce(string text, bool local = false)
@@ -220,6 +249,13 @@ namespace wServer.realm
             var acc = manager.Database.GetAccount(id);
             if (acc == null || acc.Hidden && src.Admin == 0)
                 return false;
+
+            var targetplayer = src.Manager.FindPlayer(target);
+            if (src.Spy != null)
+                SpyTo(src.Spy, src, targetplayer.Name, text);
+
+            if (targetplayer.Spy != null)
+                SpyTo(targetplayer.Spy, src, targetplayer.Name, text);
             
             manager.InterServer.Publish(Channel.Chat, new ChatMsg()
             {
@@ -267,6 +303,9 @@ namespace wServer.realm
 
             if (String.IsNullOrWhiteSpace(text))
                 return true;
+
+            if (src.Spy != null)
+                SpyTo(src.Spy, src, src.Guild, text, true);
             
             manager.InterServer.Publish(Channel.Chat, new ChatMsg()
             {

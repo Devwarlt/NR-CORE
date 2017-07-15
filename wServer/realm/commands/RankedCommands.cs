@@ -2125,4 +2125,60 @@ namespace wServer.realm.commands
             return true;
         }
     }
+
+    class SpyCommand : Command
+    {
+        public SpyCommand() : base("spy", permLevel: 80, alias: "listen") { }
+
+        protected override bool Process(Player player, RealmTime time, string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                player.SendError("Usage: /spy <player name>");
+                return false;
+            }
+
+            var target = player.Manager.FindPlayer(name);
+            if (target == null)
+            {
+                player.SendError("Player not found!");
+                return false;
+            }
+            if (target.Spy != null)
+            {
+                player.SendError($"{target.Spy.Name} is already spying on {target.Name}.");
+                return false;
+            }
+            if (player.SpyTarget != null)
+            {
+                player.SendError($"You're already spying on {player.SpyTarget.Name}.");
+                return false;
+            }
+            if (target.Rank >= player.Rank)
+            {
+                player.SendError("Cannot spy on players with an equal or greater rank.");
+                return false;
+            }
+
+            target.Spy = player;
+            player.SpyTarget = target;
+            player.SendInfo($"You are now spying on {target.Name}.");
+            return true;
+        }
+    }
+
+    class RemoveSpyCommand : Command
+    {
+        public RemoveSpyCommand() : base("removespy", permLevel: 80, alias: "removelisten") { }
+
+        protected override bool Process(Player player, RealmTime time, string args)
+        {
+            if (player.SpyTarget != null)
+            {
+                player.SendInfo($"You are no longer spying on {player.SpyTarget.Name}.");
+                player.ResetSpy();
+            }
+            return true;
+        }
+    }
 }

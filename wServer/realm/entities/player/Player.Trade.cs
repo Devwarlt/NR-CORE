@@ -110,14 +110,24 @@ namespace wServer.realm.entities
                     YourName = this.Name,
                     YourItems = my
                 });
+
+                if (Spy != null)
+                    Spy.ColoredText($"[{Owner.Id} {Owner.Name}] <{Name}> is trading with {target.Name}.", textColor: 0xD74894);
             }
             else
             {
+                if (Spy != null)
+                    Spy.ColoredText($"[{Owner.Id} {Owner.Name}] <{Name}> requested a trade with {target.Name}.", textColor: 0xD74894);
+
+                if (target.Spy != null)
+                    target.Spy.ColoredText($"[{Owner.Name} {Owner.Id}] <{Name}> requested a trade with {target.Name}.", textColor: 0xD74894);
+
                 target.potentialTrader[this] = 1000 * 20;
                 target._client.SendPacket(new TradeRequested()
                 {
                     Name = Name
                 });
+
                 SendInfo("You have sent a trade request to " + target.Name + "!");
                 return;
             }
@@ -125,6 +135,12 @@ namespace wServer.realm.entities
 
         public void CancelTrade()
         {
+            if (Spy != null)
+                Spy.ColoredText($"[{Owner.Id} {Owner.Name}] <{Name}> canceled a trade with {tradeTarget.Name}.", textColor: 0xD74894);
+
+            if (tradeTarget.Spy != null)
+                tradeTarget.Spy.ColoredText($"[{Owner.Id} {Owner.Name}] <{Name}> canceled a trade with {tradeTarget.Name}.", textColor: 0xD74894);
+
             _client.SendPacket(new TradeDone()
             {
                 Code = 1,
