@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace common.resources
 {
@@ -26,11 +27,16 @@ namespace common.resources
         public IDictionary<string, byte[]> Textures { get; private set; }
         public byte[] ZippedTextures { get; private set; }
         public IList<string> MusicNames { get; private set; }
-        public Ranks[] RoleRanks { get; private set; }
+        public Ranks[] RoleRanks { get; private set; }        
+
+        private static string AssemblyDirectory
+        {
+            get { return Path.GetDirectoryName(Assembly.GetEntryAssembly().Location); }
+        }
 
         public Resources(string resourcePath, bool wServer = false)
         {
-            ResourcePath = resourcePath;
+            ResourcePath = Path.Combine(AssemblyDirectory, resourcePath);
             Settings = new AppSettings(resourcePath + "/data/init.xml");
             GameData = new XmlData(resourcePath + "/xmls");
             FilterList = File.ReadAllText(resourcePath + "/data/filterList.txt")
